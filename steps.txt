@@ -1,0 +1,6 @@
+
+Check redis for bucket policy
+bucket_id -> 1, 2, 3
+1 -> rotating ip
+2 -> nx_domain
+3 -> server 2
