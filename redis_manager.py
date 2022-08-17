@@ -67,46 +67,50 @@ def get_ip_wrapper(resolver_ip, uuid, ttl, redis_lock, logger):
 
 # USE DB 2, 4
 def get_ip(resolver_ip, uuid, ttl, logger):
-    unified_allotment_key = "allot-" + uuid + "-" + resolver_ip
-    allotted_ip = r.get(unified_allotment_key)
+    try:
+        unified_allotment_key = "allot-" + uuid + "-" + resolver_ip
+        allotted_ip = r.get(unified_allotment_key)
 
-    if allotted_ip is not None:
-        logger.info("already allotted")
-        return allotted_ip
-    else:
-        logger.info("not allotted")
-        # empty lists are automatically removed
-        is_uid_served_redis_key = "serve-" + str(uuid)
-        is_present = r.get(is_uid_served_redis_key)
-        list_key = "lst-" + uuid
+        if allotted_ip is not None:
+            logger.info("already allotted")
+            return allotted_ip
+        else:
+            logger.info("not allotted")
+            # empty lists are automatically removed
+            is_uid_served_redis_key = "serve-" + str(uuid)
+            is_present = r.get(is_uid_served_redis_key)
+            list_key = "lst-" + uuid
 
-        if is_present is not None:
-            logger.info("uid served before")
-            # not first time, already exists
-            ips_left = r.lrange(list_key, 0, -1)
-            if len(ips_left) == 0:
-                logger.info("queue gone, lum ip")
-                r.set(unified_allotment_key, lum_resolver_list[0])
-                r.expire(unified_allotment_key, GLOBAL_TTL)
-                return lum_resolver_list[0]
+            if is_present is not None:
+                logger.info("uid served before")
+                # not first time, already exists
+                ips_left = r.lrange(list_key, 0, -1)
+                if len(ips_left) == 0:
+                    logger.info("queue gone, lum ip")
+                    r.set(unified_allotment_key, lum_resolver_list[0])
+                    r.expire(unified_allotment_key, GLOBAL_TTL)
+                    return lum_resolver_list[0]
+                else:
+                    chosen_ip = r.lpop(list_key)
+                    r.set(unified_allotment_key, chosen_ip)
+                    r.expire(unified_allotment_key, GLOBAL_TTL)
+                    return chosen_ip
+                # The command returns -2 if the key does not exist.
+                # The command returns -1 if the key exists but has no associated expire.
             else:
+                logger.info("new uid")
+                # first time
+                # is_uid_served_redis.set(str(uuid), "1")
+                r.set(is_uid_served_redis_key, "1")
+                r.expire(is_uid_served_redis_key, GLOBAL_TTL)
+                r.lpush(list_key, ip_list)
+                r.expire(list_key, GLOBAL_TTL)
                 chosen_ip = r.lpop(list_key)
+                logger.info("popped from list {}".format(chosen_ip))
                 r.set(unified_allotment_key, chosen_ip)
                 r.expire(unified_allotment_key, GLOBAL_TTL)
                 return chosen_ip
-            # The command returns -2 if the key does not exist.
-            # The command returns -1 if the key exists but has no associated expire.
-        else:
-            logger.info("new uid")
-            # first time
-            # is_uid_served_redis.set(str(uuid), "1")
-            r.set(is_uid_served_redis_key, "1")
-            r.expire(is_uid_served_redis_key, GLOBAL_TTL)
-            r.lpush(list_key, ip_list)
-            r.expire(list_key, GLOBAL_TTL)
-            chosen_ip = r.lpop(list_key)
-            r.set(unified_allotment_key, chosen_ip)
-            r.expire(unified_allotment_key, GLOBAL_TTL)
-            return chosen_ip
+    except Exception as e:
+        logger.info(e)
 
 a = 1
