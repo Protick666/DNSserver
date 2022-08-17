@@ -82,6 +82,7 @@ def get_ip(resolver_ip, uuid, ttl):
             # not first time, already exists
             ips_left = r.lrange(list_key, 0, -1)
             if len(ips_left) == 0:
+                print("queue gone, lum ip")
                 r.set(unified_allotment_key, lum_resolver_list[0])
                 r.expire(unified_allotment_key, GLOBAL_TTL)
                 return lum_resolver_list[0]

@@ -112,6 +112,8 @@ def dns_response(data, client_ip):
     qtype = request.q.qtype
     qt = QTYPE[qtype]
 
+    print("Query from {} {}".format(client_ip, qn))
+
     if 'zeus_reload' not in qn:
         # TODO return NXdomain
         logger.info("nxmal {} {} {}".format(client_ip, time.time(), qn))
@@ -134,6 +136,7 @@ def dns_response(data, client_ip):
 
     if mode == 1:
         if is_lum_ip(resolver_ip=client_ip):
+            print("lum ip")
             chosen_ip = lum_resolver_list[0]
         else:
             chosen_ip = get_ip_wrapper(resolver_ip=client_ip, uuid=uuid, ttl=ttl, redis_lock=redis_lock)
