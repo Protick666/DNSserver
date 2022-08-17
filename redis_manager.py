@@ -55,10 +55,10 @@ def get_mode(exp_id):
         return int(mode)
 
 
-def get_ip_wrapper(resolver_ip, uuid, ttl, redis_lock):
+def get_ip_wrapper(resolver_ip, uuid, ttl, redis_lock, logger):
     try:
         redis_lock.acquire(blocking=True, timeout=2)
-        ans = get_ip(resolver_ip, uuid, ttl)
+        ans = get_ip(resolver_ip, uuid, ttl, logger)
         redis_lock.release()
         return ans
     except:
@@ -66,7 +66,7 @@ def get_ip_wrapper(resolver_ip, uuid, ttl, redis_lock):
 
 
 # USE DB 2, 4
-def get_ip(resolver_ip, uuid, ttl):
+def get_ip(resolver_ip, uuid, ttl, logger):
     unified_allotment_key = "allot-" + uuid + "-" + resolver_ip
     allotted_ip = r.get(unified_allotment_key)
 
@@ -82,7 +82,7 @@ def get_ip(resolver_ip, uuid, ttl):
             # not first time, already exists
             ips_left = r.lrange(list_key, 0, -1)
             if len(ips_left) == 0:
-                print("queue gone, lum ip")
+                logger.info("queue gone, lum ip")
                 r.set(unified_allotment_key, lum_resolver_list[0])
                 r.expire(unified_allotment_key, GLOBAL_TTL)
                 return lum_resolver_list[0]

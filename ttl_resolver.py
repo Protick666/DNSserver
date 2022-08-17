@@ -136,10 +136,10 @@ def dns_response(data, client_ip):
 
     if mode == 1:
         if is_lum_ip(resolver_ip=client_ip):
-            print("lum ip")
+            logger.info("lum ip")
             chosen_ip = lum_resolver_list[0]
         else:
-            chosen_ip = get_ip_wrapper(resolver_ip=client_ip, uuid=uuid, ttl=ttl, redis_lock=redis_lock)
+            chosen_ip = get_ip_wrapper(resolver_ip=client_ip, uuid=uuid, ttl=ttl, redis_lock=redis_lock, logger=logger)
     elif mode == 3:
         chosen_ip = phase_2_ip_list[0]
     else:
