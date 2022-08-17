@@ -37,6 +37,8 @@ uid_to_list_redis: key uid   ttl 2 min
 r = redis.Redis(host='localhost', port=6379, db=0, password=redis_pass, decode_responses=True)
 
 GLOBAL_TTL = 2 * 60
+
+a = 1
 # mode_redis = redis.Redis(host='localhost', port=6379, db=1, password=redis_pass, decode_responses=True)
 # uid_to_list_redis = redis.Redis(host='localhost', port=6379, db=2, password=redis_pass, decode_responses=True)
 # uid_resolver_to_ip_redis = redis.Redis(host='localhost', port=6379, db=3, password=redis_pass, decode_responses=True)
@@ -103,7 +105,8 @@ def get_ip(resolver_ip, uuid, ttl, logger):
                 # is_uid_served_redis.set(str(uuid), "1")
                 r.set(is_uid_served_redis_key, "1")
                 r.expire(is_uid_served_redis_key, GLOBAL_TTL)
-                r.lpush(list_key, ip_list)
+                temp = ip_list
+                r.lpush(list_key, *temp)
                 r.expire(list_key, GLOBAL_TTL)
                 chosen_ip = r.lpop(list_key)
                 logger.info("popped from list {}".format(chosen_ip))
