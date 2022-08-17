@@ -71,14 +71,17 @@ def get_ip(resolver_ip, uuid, ttl, logger):
     allotted_ip = r.get(unified_allotment_key)
 
     if allotted_ip is not None:
+        logger.info("already allotted")
         return allotted_ip
     else:
+        logger.info("not allotted")
         # empty lists are automatically removed
         is_uid_served_redis_key = "serve-" + str(uuid)
         is_present = r.get(is_uid_served_redis_key)
         list_key = "lst-" + uuid
 
         if is_present is not None:
+            logger.info("uid served before")
             # not first time, already exists
             ips_left = r.lrange(list_key, 0, -1)
             if len(ips_left) == 0:
@@ -94,6 +97,7 @@ def get_ip(resolver_ip, uuid, ttl, logger):
             # The command returns -2 if the key does not exist.
             # The command returns -1 if the key exists but has no associated expire.
         else:
+            logger.info("new uid")
             # first time
             # is_uid_served_redis.set(str(uuid), "1")
             r.set(is_uid_served_redis_key, "1")
