@@ -128,7 +128,7 @@ def dns_response(data, client_ip):
     if 'event-' in qn:
         # TODO return NXdomain
         #logger.info("nxmal {} {} {}".format(client_ip, time.time(), qn))
-        logger.info("good {} {} {} {} {}".format(client_ip, time.time(), "xxx", qn, qt))
+        logger.info("goodevent {} {} {} {} {}".format(client_ip, time.time(), "xxx", qn, qt))
         reply.header.rcode = 3
         return reply.pack()
 
@@ -142,7 +142,7 @@ def dns_response(data, client_ip):
 
     if mode == 1:
         if is_lum_ip(resolver_ip=client_ip):
-            logger.info("lum ip")
+            #logger.info("lum ip")
             chosen_ip = lum_resolver_list[0]
         else:
             chosen_ip = get_ip_wrapper(resolver_ip=client_ip, uuid=uuid, ttl=ttl, redis_lock=redis_lock, logger=logger)
@@ -196,8 +196,8 @@ class BaseRequestHandler(socketserver.BaseRequestHandler):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')
         c_ip = self.client_address[0]
         # print("hit")
-        print("\n\n%s request %s (%s %s):" % (self.__class__.__name__[:3], now, self.client_address[0],
-                                              self.client_address[1]))
+        # print("\n\n%s request %s (%s %s):" % (self.__class__.__name__[:3], now, self.client_address[0],
+        #                                       self.client_address[1]))
         try:
             data = self.get_data()
             #print(len(data), data)  # repr(data).replace('\\x', '')[1:-1]
