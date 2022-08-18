@@ -112,11 +112,11 @@ def dns_response(data, client_ip):
     qtype = request.q.qtype
     qt = QTYPE[qtype]
 
-    print("Query from {} {}".format(client_ip, qn))
+    logger.info("Query from {} {} {}".format(client_ip, qn, qt))
 
     if 'zeus_reload' not in qn:
         # TODO return NXdomain
-        logger.info("nxmal {} {} {}".format(client_ip, time.time(), qn))
+        logger.info("nxmal {} {} {} {}".format(client_ip, time.time(), qn, qt))
         reply.header.rcode = 3
         return reply.pack()
     if 'event-' in qn:
@@ -144,7 +144,7 @@ def dns_response(data, client_ip):
         chosen_ip = phase_2_ip_list[0]
     else:
         # returning NXdomain
-        logger.info("nxmode {} {} {}".format(client_ip, time.time(), qn))
+        logger.info("nxmode {} {} {} {}".format(client_ip, time.time(), qn, qt))
         reply.header.rcode = 3
         return reply.pack()
 
