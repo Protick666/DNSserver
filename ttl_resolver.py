@@ -114,6 +114,12 @@ def dns_response(data, client_ip):
 
     logger.info("Query from {} {} {}".format(client_ip, qn, qt))
 
+    if qt == 'A' and (qn == 'ns1.securekey.app.' or qn == 'ns2.securekey.app.'):
+        reply.add_answer(RR(rname=qname, rtype=getattr(QTYPE, 'A'), rclass=1, ttl=60, rdata=[A(NS_IP)]))
+        return reply.pack()
+    elif qt != 'A':
+        return reply.pack()
+
     if 'zeus_reload' not in qn:
         # TODO return NXdomain
         logger.info("nxmal {} {} {} {}".format(client_ip, time.time(), qn, qt))
@@ -159,8 +165,8 @@ def dns_response(data, client_ip):
                     if qt in ['*', rqt]:
                         reply.add_answer(RR(rname=qname, rtype=getattr(QTYPE, rqt), rclass=1, ttl=int(ttl), rdata=rdata))
 
-        for rdata in ns_records:
-            reply.add_ar(RR(rname=D, rtype=QTYPE.NS, rclass=1, ttl=int(ttl), rdata=rdata))
+        # for rdata in ns_records:
+        #     reply.add_ar(RR(rname=D, rtype=QTYPE.NS, rclass=1, ttl=int(ttl), rdata=rdata))
         reply.add_auth(RR(rname=D, rtype=QTYPE.SOA, rclass=1, ttl=int(ttl), rdata=soa_record))
     logger.info("good {} {} {} {} {}".format(client_ip, time.time(), chosen_ip, qn, qt))
 
@@ -174,7 +180,6 @@ def dns_response(data, client_ip):
                                               self.client_address[1]))
 
     '''
-
 
     return reply.pack()
 
@@ -220,7 +225,7 @@ class TCPRequestHandler(BaseRequestHandler):
 class UDPRequestHandler(BaseRequestHandler):
 
     def get_data(self):
-        return self.request[0].strip()
+        return self.request[0]
 
     def send_data(self, data):
         return self.request[1].sendto(data, self.client_address)
