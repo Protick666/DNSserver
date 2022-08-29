@@ -116,7 +116,7 @@ def dns_response(data, client_ip):
 
     # TODO here
     if qt == 'A' and (qn == 'ns1.securekey.app.' or qn == 'ns2.securekey.app.'):
-        reply.add_answer(RR(rname=qname, rtype=getattr(QTYPE, 'A'), rclass=1, ttl=3600, rdata=A(NS_IP)))
+        reply.add_answer(RR(rname=qname, rtype=getattr(QTYPE, 'A'), rclass=1, ttl=1800, rdata=A(NS_IP)))
         return reply.pack()
     elif qt != 'A':
         return reply.pack()
