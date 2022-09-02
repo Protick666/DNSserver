@@ -61,7 +61,7 @@ def dns_response(data, client_ip, is_udp):
 
     request = DNSRecord.parse(data)
 
-    print(request)
+    # print(request)
 
     reply = DNSRecord(DNSHeader(id=request.header.id, qr=1, aa=1, ra=1), q=request.q)
 
@@ -122,7 +122,7 @@ def dns_response(data, client_ip, is_udp):
 
         reply.add_auth(RR(rname=D, rtype=QTYPE.SOA, rclass=1, ttl=TTL, rdata=soa_record))
 
-    print("---- Reply:\n", reply)
+    # print("---- Reply:\n", reply)
     return reply.pack()
 
 
@@ -136,15 +136,16 @@ class BaseRequestHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')
-        print("\n\n%s request %s (%s %s):" % (self.__class__.__name__[:3], now, self.client_address[0],
-                                              self.client_address[1]))
+        # print("\n\n%s request %s (%s %s):" % (self.__class__.__name__[:3], now, self.client_address[0],
+        #                                       self.client_address[1]))
         try:
             c_ip = self.client_address[0]
             data = self.get_data()
-            print(len(data), data)  # repr(data).replace('\\x', '')[1:-1]
+            # print(len(data), data)  # repr(data).replace('\\x', '')[1:-1]
             self.send_data(dns_response(data, client_ip=c_ip, is_udp= "UDP" in str(self.server)))
         except Exception:
-            traceback.print_exc(file=sys.stderr)
+            pass
+            # traceback.print_exc(file=sys.stderr)
 
 
 class TCPRequestHandler(BaseRequestHandler):
