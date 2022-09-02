@@ -98,7 +98,7 @@ def dns_response(data, client_ip, is_udp):
 
         if 'zeus_edns' not in qn:
             # TODO return NXdomain
-            logger.info("ednexpother {} {} {} {} {} {}".format(client_ip, time.time(), qn, qt, edns_size, server_type))
+            # logger.info("ednexpother {} {} {} {} {} {}".format(client_ip, time.time(), qn, qt, edns_size, server_type))
             reply.header.rcode = 3
             return reply.pack()
 
