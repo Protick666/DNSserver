@@ -10,6 +10,8 @@ import struct
 import logging
 from logging.handlers import RotatingFileHandler
 
+from tools import is_lum_ip
+
 try:
     from dnslib import *
 except ImportError:
@@ -80,13 +82,9 @@ def dns_response(data, client_ip, is_udp):
     elif qt != 'A':
         return reply.pack()
 
-
-
-
     if qn == D or qn.endswith('.' + D):
 
         edns_size = -1
-
         try:
             for e in request.ar:
                 try:
@@ -102,12 +100,24 @@ def dns_response(data, client_ip, is_udp):
             reply.header.rcode = 3
             return reply.pack()
 
-        logger.info("ednexp {} {} {} {} {} {}".format(client_ip, time.time(), qn, qt, edns_size, server_type))
+
 
         if is_udp:
-            reply.header.tc = 1
-            return reply.pack()
+            if not(is_lum_ip(resolver_ip=client_ip)):
+                logger.info("ednexpnorm {} {} {} {} {} {}".format(client_ip, time.time(), qn, qt, edns_size, server_type))
+                reply.header.tc = 1
+                return reply.pack()
+            else:
+                logger.info(
+                    "ednexplum {} {} {} {} {} {}".format(client_ip, time.time(), qn, qt, edns_size, server_type))
         # request.ar[0].edns_len
+        else:
+            if not (is_lum_ip(resolver_ip=client_ip)):
+                logger.info("ednexpnorm {} {} {} {} {} {}".format(client_ip, time.time(), qn, qt, edns_size, server_type))
+            else:
+                logger.info(
+                    "ednexplumweird {} {} {} {} {} {}".format(client_ip, time.time(), qn, qt, edns_size, server_type))
+
 
         for name, rrs in records.items():
             if qn.endswith('.' + name):
