@@ -45,6 +45,8 @@ Checking:
     resolv file
     transfer check
     lum transfer check
+    dns pulse
+    local file in Pulse master
 '''
 
 logger = logging.getLogger('my_logger')
@@ -196,7 +198,8 @@ class BaseRequestHandler(socketserver.BaseRequestHandler):
             # print(len(data), data)  # repr(data).replace('\\x', '')[1:-1]
             self.send_data(dns_response(data=data, client_ip=c_ip))
         except Exception:
-            traceback.print_exc(file=sys.stderr)
+            pass
+            # traceback.print_exc(file=sys.stderr)
 
 
 class TCPRequestHandler(BaseRequestHandler):
