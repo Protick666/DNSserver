@@ -122,6 +122,7 @@ def dns_response(data, client_ip):
 
     if qt == 'A' and (qn == 'ns1.{}'.format(base_domain_name) or qn == 'ns2.{}'.format(base_domain_name)):
         reply.add_answer(RR(rname=qname, rtype=getattr(QTYPE, 'A'), rclass=1, ttl=3600, rdata=A(NS_IP)))
+        print("Returning NS {}".format(NS_IP))
         return reply.pack()
     elif qt != 'A':
         return reply.pack()
