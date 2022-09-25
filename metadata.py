@@ -29,7 +29,7 @@ lum_resolver_list = [
     "52.4.120.223"
 ]
 
-NS_IP = '50.16.6.90'
+
 
 def get_all_ips():
     return ip_list + phase_2_ip_list + lum_resolver_list

@@ -47,6 +47,8 @@ Checking:
     lum transfer check
     dns pulse
     local file in Pulse master
+    
+    TOO ** close tttl -> only consider resolvers appearing before receiving time !!!
 '''
 
 logger = logging.getLogger('my_logger')
@@ -67,14 +69,17 @@ base_domain_name = None
 D = None
 soa_record = None
 ns_records = None
+NS_IP = None
 
 
-def preprocess_info(domain_name):
+def preprocess_info(domain_name, ns_ip):
     # base_domain_name = 'securekey.app.'
-    global base_domain_name, D, soa_record, ns_records, record_dict
+    global base_domain_name, D, soa_record, ns_records, record_dict, NS_IP
 
+    NS_IP = ns_ip
     base_domain_name = domain_name
     D = DomainName(base_domain_name)
+
 
     soa_record = SOA(
         mname=D.ns1,  # primary name server
@@ -232,6 +237,7 @@ def main():
     parser = argparse.ArgumentParser(description='Start a DNS implemented in Python. Usually DNSs use UDP on port 53.')
     parser.add_argument('--port', default=5053, type=int, help='The port to listen on.')
     parser.add_argument('--base_domain', type=str, help='The base domain')
+    parser.add_argument('--own_ip', type=str, help='Own IP for NS')
     parser.add_argument('--tcp', action='store_true', help='Listen to TCP connections.')
     parser.add_argument('--udp', action='store_true', help='Listen to UDP datagrams.')
 
@@ -240,7 +246,8 @@ def main():
     if not args.base_domain:
         parser.error("Please provide the base domain name with ")
     domain = args.base_domain
-    preprocess_info(domain_name=domain)
+
+    preprocess_info(domain_name=domain, ns_ip=args.own_ip)
 
     if not (args.udp or args.tcp):
         parser.error("Please select at least one of --udp or --tcp.")
