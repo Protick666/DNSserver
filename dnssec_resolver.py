@@ -58,6 +58,7 @@ def dns_response(data, client_ip, is_udp):
     logger.info("Query from {} {} {}".format(client_ip, qn, qt))
 
     # ${uuid_str}.${exp_id}.${TTL}.${domain.asn}.${bucket_number}.${URL}
+    # asdasd.zeus_dnssec_123.60.123.test.cashcash.app
     meta_info_list = qn.split(".")
 
     m_ode = -1
@@ -66,7 +67,7 @@ def dns_response(data, client_ip, is_udp):
 
     query_format = None
 
-    if len(meta_info_list) == 6 and 'zeus_dnssec' in qn:
+    if len(meta_info_list) == 7 and 'zeus_dnssec' in qn:
         query_format = "proper"
         # choose bucket
         uuid, exp_id, ttl, asn, bucket = meta_info_list[0], \
