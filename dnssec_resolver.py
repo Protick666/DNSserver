@@ -57,13 +57,18 @@ def dns_response(data, client_ip, is_udp):
     # TODO logger thik
     logger.info("Query from {} {} {}".format(client_ip, qn, qt))
 
-    # ${uuid_str}.${exp_id}.${TTL}.${domain.asn}.${bucket_number}.${URL}
-    # asdasd.zeus_dnssec_123.60.123.test.cashcash.app
+    # ${uuid_str}.${exp_id}.${TTL}.${domain.asn}.${bucket_number}.${URL}.com
+    # abcd.zeus.60.12.test.cashcash.app
     meta_info_list = qn.split(".")
 
     m_ode = -1
-    msg = message.from_wire(data)
+    ednsflag = -1
     c_ip = -1
+
+    msg = message.from_wire(data)
+
+    if hasattr(msg, "ednsflags"):
+        ednsflag = msg.ednsflags
 
     query_format = None
 
@@ -103,11 +108,14 @@ def dns_response(data, client_ip, is_udp):
         answer = query.udp(msg, chosen_container_ip)
     else:
         answer = query.tcp(msg, chosen_container_ip)
-
-    logger.info("good {} {} {} {} {} {} {} {}".format(query_format, client_ip,
-                                                      time.time(), m_ode, c_ip, chosen_container_ip, qn, qt))
-
     response_as_byte_arr = bytearray(answer.to_wire())
+    re_msg = DNSRecord.parse(answer.to_wire())
+    tc_bit = re_msg.header.tc
+
+    logger.info("good {} {} {} {} {} {} {} {} tc: {} do: {}".format(query_format, client_ip,
+                                                      time.time(), m_ode, c_ip, chosen_container_ip, qn, qt, tc_bit, ednsflag))
+
+
     return response_as_byte_arr
 
 
