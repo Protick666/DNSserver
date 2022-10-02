@@ -100,6 +100,10 @@ def dns_response(data, client_ip, is_udp):
             chosen_container_ip = "172.17.0.4"
 
     else:
+        if 'live_dnssec' in qn:
+            reply.header.rcode = 2
+            return reply.pack()
+
         query_format = "undetected"
         chosen_index = random.randint(0, len(container_ips) - 1)
         chosen_container_ip = container_ips[chosen_index]
