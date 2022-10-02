@@ -54,6 +54,10 @@ def dns_response(data, client_ip, is_udp):
     qtype = request.q.qtype
     qt = QTYPE[qtype]
 
+    if 'live_dnssec' in qn:
+        reply.header.rcode = 2
+        return reply.pack()
+
     # TODO logger thik
     logger.info("Query from {} {} {}".format(client_ip, qn, qt))
 
