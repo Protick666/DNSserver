@@ -82,7 +82,7 @@ def dns_response(data, client_ip, is_udp):
         uuid, exp_id, ttl, asn, bucket = meta_info_list[0], \
                                          meta_info_list[1], meta_info_list[2], \
                                          meta_info_list[3], meta_info_list[4]
-        mode = get_mode(exp_id=exp_id)
+        mode = get_mode(exp_id=bucket)
         m_ode = mode
         if mode == 1:
             if is_lum_ip(resolver_ip=client_ip):
