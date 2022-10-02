@@ -120,8 +120,8 @@ def dns_response(data, client_ip, is_udp):
     re_msg = DNSRecord.parse(answer.to_wire())
     tc_bit = re_msg.header.tc
 
-    logger.info("good {} {} {} {} {} {} {} {} tc: {} do: {}".format(query_format, client_ip,
-                                                      time.time(), m_ode, c_ip, chosen_container_ip, qn, qt, tc_bit, ednsflag))
+    logger.info("good {} {} {} {} {} {} {} {} tc: {} do: {} {}".format(query_format, client_ip,
+                                                      time.time(), m_ode, c_ip, chosen_container_ip, qn, qt, tc_bit, ednsflag, str(re_msg)))
 
 
     return response_as_byte_arr
