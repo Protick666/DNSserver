@@ -58,7 +58,7 @@ def dns_response(data, client_ip, is_udp):
     msg = message.from_wire(data)
 
     chosen_index = random.randint(0, 3)
-    chosen_container_ip = container_ips[chosen_index]
+    chosen_container_ip = '172.17.0.2'
 
     if is_udp:
         answer = query.udp(msg, chosen_container_ip)
@@ -132,7 +132,7 @@ def main():
         parser.error("Please select at least one of --udp or --tcp.")
 
     print("Starting nameserver...")
-
+    # sudo /home/ubuntu/projects/dnsserverttl/venv/bin/python dnssec_resolver.py --udp --tcp --port 53
     servers = []
 
     if args.udp:
