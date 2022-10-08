@@ -9,10 +9,17 @@ import socketserver
 import sys
 import threading
 from logging.handlers import RotatingFileHandler
+from threading import Lock
+import random
 
 from dns import message, query
 
+from redis_manager import *
+from tools import *
+
 index = 0
+
+redis_lock = Lock()
 
 try:
     from dnslib import *
@@ -37,28 +44,75 @@ class DomainName(str):
     def __getattr__(self, item):
         return DomainName(item + '.' + self)
 
-container_ips = ['172.17.0.2', '172.17.0.3', '172.17.0.4', '172.17.0.5']
 
 def dns_response(data, client_ip, is_udp):
 
+    cline_Str = ""
     if is_udp:
         cline_Str = "UDP"
     else:
         cline_Str = "TCP"
 
     request = DNSRecord.parse(data)
+    reply = DNSRecord(DNSHeader(id=request.header.id, qr=1, aa=1, ra=1), q=request.q)
 
     qname = request.q.qname
     qn = str(qname)
     qtype = request.q.qtype
     qt = QTYPE[qtype]
 
+    if 'live_dnssec' in qn:
+        reply.header.rcode = 2
+        return reply.pack()
+
+    # TODO logger thik
     logger.info("Query from {} {} {}".format(client_ip, qn, qt, cline_Str))
+
+    # ${uuid_str}.${exp_id}.${TTL}.${domain.asn}.${bucket_number}.${URL}.com
+    # abcd.zeus_dnssec.60.12.test.cashcash.app
+    meta_info_list = qn.split(".")
+
+    m_ode = -1
+    ednsflag = -1
+    c_ip = -1
 
     msg = message.from_wire(data)
 
-    chosen_index = random.randint(0, 3)
-    chosen_container_ip = container_ips[chosen_index]
+    if hasattr(msg, "ednsflags"):
+        ednsflag = msg.ednsflags
+
+    query_format = None
+
+    if len(meta_info_list) == 5 and 'signsecprobing' in qn:
+        query_format = "proper"
+        # choose bucket
+        uuid, exp_id, ttl, asn, bucket = meta_info_list[0], \
+                                         meta_info_list[1], meta_info_list[2], \
+                                         meta_info_list[3], meta_info_list[4]
+        mode = 1
+        m_ode = mode
+
+        if is_lum_ip(resolver_ip=client_ip):
+            chosen_ip = lum_resolver_list[0]
+        else:
+            chosen_ip = get_ip_wrapper(resolver_ip=client_ip, uuid=uuid, ttl=ttl, redis_lock=redis_lock,
+                                       logger=logger)
+
+        c_ip = chosen_ip
+
+        if chosen_ip in ip_to_container_ip:
+            chosen_container_ip = ip_to_container_ip[chosen_ip]
+        else:
+            chosen_container_ip = "172.17.0.4"
+
+    else:
+        if 'live_dnssec' in qn:
+            reply.header.rcode = 2
+            return reply.pack()
+
+        query_format = "undetected"
+        chosen_index = random.randint(0, len(container_ips) - 1)
+        chosen_container_ip = container_ips[chosen_index]
 
     if is_udp:
         answer = query.udp(msg, chosen_container_ip)
@@ -66,12 +120,14 @@ def dns_response(data, client_ip, is_udp):
         answer = query.tcp(msg, chosen_container_ip)
     response_as_byte_arr = bytearray(answer.to_wire())
     re_msg = DNSRecord.parse(answer.to_wire())
+    tc_bit = re_msg.header.tc
 
-    logger.info("good {} {} {} {} {} {}".format(client_ip,
-                                                      time.time(), chosen_container_ip, qn,
-                                                                             qt, cline_Str))
+    logger.info("good {} {} {} {} {} {} {} {} tc: {} do: {} {}".format(query_format, client_ip,
+                                                      time.time(), m_ode, c_ip, chosen_container_ip, qn,
+                                                                             qt, tc_bit, ednsflag, cline_Str))
 
     return response_as_byte_arr
+
 
 
 class BaseRequestHandler(socketserver.BaseRequestHandler):
@@ -132,7 +188,7 @@ def main():
         parser.error("Please select at least one of --udp or --tcp.")
 
     print("Starting nameserver...")
-    # sudo /home/ubuntu/projects/dnsserverttl/venv/bin/python dnssec_resolver.py --udp --tcp --port 53
+
     servers = []
 
     if args.udp:
