@@ -58,7 +58,7 @@ def dns_response(data, client_ip, is_udp):
     msg = message.from_wire(data)
 
     chosen_index = random.randint(0, 3)
-    chosen_container_ip = '172.17.0.2'
+    chosen_container_ip = container_ips[chosen_index]
 
     if is_udp:
         answer = query.udp(msg, chosen_container_ip)
