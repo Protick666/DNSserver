@@ -100,10 +100,14 @@ def dns_response(data, client_ip, is_udp):
 
         c_ip = chosen_ip
 
+        logger.info("chosen {} {} {} ".format(qn, client_ip, chosen_ip))
+
         if chosen_ip in ip_to_container_ip:
             chosen_container_ip = ip_to_container_ip[chosen_ip]
         else:
             chosen_container_ip = "172.17.0.4"
+
+        logger.info("chosen cont {} {} {} ".format(qn, client_ip, chosen_container_ip))
 
     else:
         if 'live_dnssec' in qn:
