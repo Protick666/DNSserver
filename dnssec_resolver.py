@@ -85,7 +85,7 @@ def dns_response(data, client_ip, is_udp):
 
     if len(meta_info_list) == 6 and 'signsecprobing' in qn:
         try:
-            logger.info("In {} {} {} ".format(qn, client_ip))
+            logger.info("In {} {} ".format(qn, client_ip))
             query_format = "proper"
             # uid.exp.inc.cash.app
             uuid, exp_id = meta_info_list[0], meta_info_list[1]
