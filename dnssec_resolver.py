@@ -84,28 +84,32 @@ def dns_response(data, client_ip, is_udp):
     query_format = None
 
     if len(meta_info_list) == 6 and 'signsecprobing' in qn:
-        query_format = "proper"
-        # uid.exp.inc.cash.app
-        uuid, exp_id = meta_info_list[0], meta_info_list[1]
-        mode = 1
-        m_ode = mode
+        try:
+            logger.info("In {} {} {} ".format(qn, client_ip))
+            query_format = "proper"
+            # uid.exp.inc.cash.app
+            uuid, exp_id = meta_info_list[0], meta_info_list[1]
+            mode = 1
+            m_ode = mode
 
-        if is_lum_ip(resolver_ip=client_ip):
-            chosen_ip = lum_resolver_list[0]
-        else:
-            chosen_ip = get_ip_wrapper(resolver_ip=client_ip, uuid=uuid, redis_lock=redis_lock,
-                                       logger=logger)
+            if is_lum_ip(resolver_ip=client_ip):
+                chosen_ip = lum_resolver_list[0]
+            else:
+                chosen_ip = get_ip_wrapper(resolver_ip=client_ip, uuid=uuid, redis_lock=redis_lock,
+                                           logger=logger)
 
-        c_ip = chosen_ip
+            c_ip = chosen_ip
 
-        #logger.info("chosen {} {} {} ".format(qn, client_ip, chosen_ip))
+            logger.info("chosen {} {} {} ".format(qn, client_ip, chosen_ip))
 
-        if chosen_ip in ip_to_container_ip:
-            chosen_container_ip = ip_to_container_ip[chosen_ip]
-        else:
-            chosen_container_ip = "172.17.0.4"
+            if chosen_ip in ip_to_container_ip:
+                chosen_container_ip = ip_to_container_ip[chosen_ip]
+            else:
+                chosen_container_ip = "172.17.0.4"
 
-        #logger.info("chosen cont {} {} {} ".format(qn, client_ip, chosen_container_ip))
+            logger.info("chosen cont {} {} {} ".format(qn, client_ip, chosen_container_ip))
+        except Exception as e:
+            logger.info("chosen ex {} {} {} ".format(qn, client_ip, e))
 
     else:
         if 'live_dnssec' in qn:
