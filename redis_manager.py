@@ -57,10 +57,10 @@ def get_mode(exp_id):
         return int(mode)
 
 
-def get_ip_wrapper(resolver_ip, uuid, ttl, redis_lock, logger):
+def get_ip_wrapper(resolver_ip, uuid, redis_lock, logger):
     try:
         redis_lock.acquire(blocking=True, timeout=2)
-        ans = get_ip(resolver_ip, uuid, ttl, logger)
+        ans = get_ip(resolver_ip, uuid, logger)
         redis_lock.release()
         return ans
     except:
@@ -68,7 +68,7 @@ def get_ip_wrapper(resolver_ip, uuid, ttl, redis_lock, logger):
 
 
 # USE DB 2, 4
-def get_ip(resolver_ip, uuid, ttl, logger):
+def get_ip(resolver_ip, uuid, logger):
     try:
         unified_allotment_key = "allot-" + uuid + "-" + resolver_ip
         allotted_ip = r.get(unified_allotment_key)
