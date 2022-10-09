@@ -85,29 +85,27 @@ def dns_response(data, client_ip, is_udp):
 
     if len(meta_info_list) == 6 and 'signsecprobing' in qn:
         query_format = "proper"
-        # choose bucket
-        uuid, exp_id, ttl, asn, bucket = meta_info_list[0], \
-                                         meta_info_list[1], meta_info_list[2], \
-                                         meta_info_list[3], meta_info_list[4]
+        # uid.exp.inc.cash.app
+        uuid, exp_id = meta_info_list[0], meta_info_list[1]
         mode = 1
         m_ode = mode
 
         if is_lum_ip(resolver_ip=client_ip):
             chosen_ip = lum_resolver_list[0]
         else:
-            chosen_ip = get_ip_wrapper(resolver_ip=client_ip, uuid=uuid, ttl=ttl, redis_lock=redis_lock,
+            chosen_ip = get_ip_wrapper(resolver_ip=client_ip, uuid=uuid, redis_lock=redis_lock,
                                        logger=logger)
 
         c_ip = chosen_ip
 
-        logger.info("chosen {} {} {} ".format(qn, client_ip, chosen_ip))
+        #logger.info("chosen {} {} {} ".format(qn, client_ip, chosen_ip))
 
         if chosen_ip in ip_to_container_ip:
             chosen_container_ip = ip_to_container_ip[chosen_ip]
         else:
             chosen_container_ip = "172.17.0.4"
 
-        logger.info("chosen cont {} {} {} ".format(qn, client_ip, chosen_container_ip))
+        #logger.info("chosen cont {} {} {} ".format(qn, client_ip, chosen_container_ip))
 
     else:
         if 'live_dnssec' in qn:
