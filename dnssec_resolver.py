@@ -85,7 +85,7 @@ def dns_response(data, client_ip, is_udp):
 
     if len(meta_info_list) == 6 and 'signsecprobing' in qn:
         try:
-            logger.info("In {} {} ".format(qn, client_ip))
+            # logger.info("In {} {} ".format(qn, client_ip))
             query_format = "proper"
             # uid.exp.inc.cash.app
             uuid, exp_id = meta_info_list[0], meta_info_list[1]
@@ -100,16 +100,17 @@ def dns_response(data, client_ip, is_udp):
 
             c_ip = chosen_ip
 
-            logger.info("chosen {} {} {} ".format(qn, client_ip, chosen_ip))
+            # logger.info("chosen {} {} {} ".format(qn, client_ip, chosen_ip))
 
             if chosen_ip in ip_to_container_ip:
                 chosen_container_ip = ip_to_container_ip[chosen_ip]
             else:
                 chosen_container_ip = "172.17.0.4"
 
-            logger.info("chosen cont {} {} {} ".format(qn, client_ip, chosen_container_ip))
+            # logger.info("chosen cont {} {} {} ".format(qn, client_ip, chosen_container_ip))
         except Exception as e:
-            logger.info("chosen ex {} {} {} ".format(qn, client_ip, e))
+            pass
+            # logger.info("chosen ex {} {} {} ".format(qn, client_ip, e))
 
     else:
         if 'live_dnssec' in qn:
