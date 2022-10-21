@@ -108,7 +108,9 @@ def dns_response(data, client_ip, is_udp):
         if chosen_ip in ip_to_container_ip:
             chosen_container_ip = ip_to_container_ip[chosen_ip]
         else:
-            chosen_container_ip = "172.17.0.4"
+            chosen_container_ip = "172.17.0.3"
+
+        chosen_container_ip = "172.17.0.3"
 
     else:
         if 'live_dnssec' in qn:
