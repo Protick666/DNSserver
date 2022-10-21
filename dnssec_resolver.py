@@ -151,8 +151,8 @@ class BaseRequestHandler(socketserver.BaseRequestHandler):
             data = self.get_data()
             # print(len(data), data)  # repr(data).replace('\\x', '')[1:-1]
             self.send_data(dns_response(data=data, client_ip=c_ip, is_udp= "UDP" in str(self.server)))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.info("Exception {}".format(e))
             # traceback.print_exc(file=sys.stderr)
 
 
@@ -168,8 +168,12 @@ class TCPRequestHandler(BaseRequestHandler):
         return data[2:]
 
     def send_data(self, data):
-        sz = struct.pack('>H', len(data))
-        return self.request.sendall(sz + data)
+        try:
+            sz = struct.pack('>H', len(data))
+            return self.request.sendall(sz + data)
+        except Exception as e:
+            logger.info("Exception {}".format(e))
+
 
 
 class UDPRequestHandler(BaseRequestHandler):
@@ -178,7 +182,10 @@ class UDPRequestHandler(BaseRequestHandler):
         return self.request[0]
 
     def send_data(self, data):
-        return self.request[1].sendto(data, self.client_address)
+        try:
+            return self.request[1].sendto(data, self.client_address)
+        except Exception as e:
+            logger.info("Exception {}".format(e))
 
 
 def main():
