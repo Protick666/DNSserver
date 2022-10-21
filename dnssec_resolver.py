@@ -122,7 +122,7 @@ def dns_response(data, client_ip, is_udp):
         query_format = "undetected"
         chosen_index = random.randint(0, len(container_ips) - 1)
         chosen_container_ip = container_ips[chosen_index]
-        chosen_container_ip = "172.17.0.4"
+        chosen_container_ip = "172.17.0.5"
 
     if is_udp:
         answer = query.udp(msg, chosen_container_ip)
