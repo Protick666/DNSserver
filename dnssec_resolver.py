@@ -68,6 +68,8 @@ def dns_response(data, client_ip, is_udp):
     # TODO logger thik
     logger.info("Query from {} {} {}".format(client_ip, qn, qt, cline_Str))
 
+    is_lum = is_lum_ip(resolver_ip=client_ip)
+
     # ${uuid_str}.${exp_id}.${TTL}.${domain.asn}.${bucket_number}.${URL}.com
     # abcd.zeus_dnssec.60.12.test.cashcash.app
     meta_info_list = qn.split(".")
@@ -78,6 +80,7 @@ def dns_response(data, client_ip, is_udp):
 
     msg = message.from_wire(data)
     chosen_container_ip = None
+    chosen_ip = None
 
     if hasattr(msg, "ednsflags"):
         ednsflag = msg.ednsflags
@@ -92,26 +95,27 @@ def dns_response(data, client_ip, is_udp):
                                          meta_info_list[3], meta_info_list[4]
         mode = get_mode(exp_id=bucket)
         m_ode = mode
+
         if mode == 1:
-            if is_lum_ip(resolver_ip=client_ip):
+            if is_lum:
                 chosen_ip = lum_resolver_list[0]
             else:
                 chosen_ip = get_ip_wrapper(resolver_ip=client_ip, uuid=uuid, ttl=ttl, redis_lock=redis_lock,
                                            logger=logger)
         elif mode == 3:
             chosen_ip = phase_2_ip_list[0]
+            if is_lum:
+                chosen_ip = lum_resolver_list[0]
         else:
             logger.info("replyfail {} {} {} {}".format(client_ip, time.time(), qn, qt, cline_Str))
             reply.header.rcode = 2
             return reply.pack()
         c_ip = chosen_ip
-
+        # TODO please check
         if chosen_ip in ip_to_container_ip:
             chosen_container_ip = ip_to_container_ip[chosen_ip]
         else:
             chosen_container_ip = "172.17.0.3"
-
-        chosen_container_ip = "172.17.0.4"
         # TODO cng  chosen_container_ip = "172.17.0.3", logging
 
     else:
@@ -122,7 +126,9 @@ def dns_response(data, client_ip, is_udp):
         query_format = "undetected"
         chosen_index = random.randint(0, len(container_ips) - 1)
         chosen_container_ip = container_ips[chosen_index]
-        chosen_container_ip = "172.17.0.11"
+        if is_lum:
+            chosen_container_ip = '172.17.0.3'
+
 
     if is_udp:
         answer = query.udp(msg, chosen_container_ip)
@@ -132,9 +138,9 @@ def dns_response(data, client_ip, is_udp):
     re_msg = DNSRecord.parse(answer.to_wire())
     tc_bit = re_msg.header.tc
 
-    logger.info("good {} {} {} {} {} {} {} {} tc: {} do: {} {} {}".format(query_format, client_ip,
+    logger.info("good {} {} {} {} {} {} {} {} tc: {} do: {} {}".format(query_format, client_ip,
                                                       time.time(), m_ode, c_ip, chosen_container_ip, qn,
-                                                                             qt, tc_bit, ednsflag, cline_Str, str(re_msg)))
+                                                                             qt, tc_bit, ednsflag, cline_Str))
 
     return response_as_byte_arr
 
