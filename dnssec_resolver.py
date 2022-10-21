@@ -77,6 +77,7 @@ def dns_response(data, client_ip, is_udp):
     c_ip = -1
 
     msg = message.from_wire(data)
+    chosen_container_ip = None
 
     if hasattr(msg, "ednsflags"):
         ednsflag = msg.ednsflags
@@ -111,6 +112,7 @@ def dns_response(data, client_ip, is_udp):
             chosen_container_ip = "172.17.0.3"
 
         chosen_container_ip = "172.17.0.3"
+        # TODO cng  chosen_container_ip = "172.17.0.3", logging
 
     else:
         if 'live_dnssec' in qn:
@@ -120,6 +122,7 @@ def dns_response(data, client_ip, is_udp):
         query_format = "undetected"
         chosen_index = random.randint(0, len(container_ips) - 1)
         chosen_container_ip = container_ips[chosen_index]
+        chosen_container_ip = "172.17.0.3"
 
     if is_udp:
         answer = query.udp(msg, chosen_container_ip)
