@@ -100,10 +100,10 @@ def dns_response(data, client_ip, is_udp):
             if is_lum:
                 chosen_ip = lum_resolver_list[0]
             else:
-                chosen_ip = lum_resolver_list[0]
-                # logger.info("replyfail {} {} {} {}".format(client_ip, time.time(), qn, qt, cline_Str))
-                # reply.header.rcode = 2
-                # return reply.pack()
+                #chosen_ip = lum_resolver_list[0]
+                logger.info("replyfail {} {} {} {}".format(client_ip, time.time(), qn, qt, cline_Str))
+                reply.header.rcode = 2
+                return reply.pack()
                 # chosen_ip = get_ip_wrapper(resolver_ip=client_ip, uuid=uuid, ttl=ttl, redis_lock=redis_lock,
                 #                            logger=logger)
         elif mode == 3:
