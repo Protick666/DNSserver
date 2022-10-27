@@ -129,7 +129,6 @@ def dns_response(data, client_ip, is_udp):
         if is_lum:
             chosen_container_ip = '172.17.0.3'
 
-
     if is_udp:
         answer = query.udp(msg, chosen_container_ip)
     else:
@@ -137,13 +136,20 @@ def dns_response(data, client_ip, is_udp):
     response_as_byte_arr = bytearray(answer.to_wire())
     re_msg = DNSRecord.parse(answer.to_wire())
     tc_bit = re_msg.header.tc
+    rcode = re_msg.header.rcode
 
-    logger.info("good {} {} {} {} {} {} {} {} tc: {} do: {} {}".format(query_format, client_ip,
+    logger.info("good {} {} {} {} {} {} {} {} tc: {} do: {} {} rcode: ".format(query_format, client_ip,
                                                       time.time(), m_ode, c_ip, chosen_container_ip, qn,
-                                                                             qt, tc_bit, ednsflag, cline_Str))
+                                                                             qt, tc_bit, ednsflag, cline_Str, rcode))
 
     return response_as_byte_arr
 
+
+'''
+    phase 1    ->  asadfsaf
+    phase 2    ->  asadfsdf
+    error-msg  ->  list()
+'''
 
 class BaseRequestHandler(socketserver.BaseRequestHandler):
 
@@ -182,7 +188,6 @@ class TCPRequestHandler(BaseRequestHandler):
             return self.request.sendall(sz + data)
         except Exception as e:
             logger.info("Exception {}".format(e))
-
 
 
 class UDPRequestHandler(BaseRequestHandler):
