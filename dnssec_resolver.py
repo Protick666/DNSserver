@@ -138,7 +138,7 @@ def dns_response(data, client_ip, is_udp):
     tc_bit = re_msg.header.tc
     rcode = re_msg.header.rcode
 
-    logger.info("good {} {} {} {} {} {} {} {} tc: {} do: {} {} rcode: ".format(query_format, client_ip,
+    logger.info("good {} {} {} {} {} {} {} {} tc: {} do: {} {} rcode: {}".format(query_format, client_ip,
                                                       time.time(), m_ode, c_ip, chosen_container_ip, qn,
                                                                              qt, tc_bit, ednsflag, cline_Str, rcode))
 
